@@ -36,7 +36,8 @@ module alu (
             if (core_state == 3'b101) begin 
                 if (decoded_alu_output_mux == 1) begin 
                     // Set values to compare with NZP register in alu_out[2:0]
-                    alu_out_reg <= {5'b0, (rs - rt > 0), (rs - rt == 0), (rs - rt < 0)};
+                    // N=2 (rs < rt), Z=1 (rs == rt), P=0 (rs > rt)
+                    alu_out_reg <= {5'b0, (rs < rt), (rs == rt), (rs > rt)};
                 end else begin 
                     // Execute the specified arithmetic instruction
                     case (decoded_alu_arithmetic_mux)

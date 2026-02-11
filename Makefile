@@ -13,6 +13,11 @@ test_%:
 	iverilog -o build/sim.vvp -s gpu -g2012 build/gpu.v
 	COCOTB_TEST_MODULES=test.test_$* vvp -M $$(cocotb-config --lib-dir) -m libcocotbvpi_icarus build/sim.vvp
 
+test_divergence:
+	make compile
+	iverilog -o build/sim.vvp -s core -g2012 build/gpu.v
+	COCOTB_TEST_MODULES=test.test_divergence vvp -M $$(cocotb-config --lib-dir) -m libcocotbvpi_icarus build/sim.vvp
+
 compile:
 	make compile_alu
 	sv2v -I src/* -w build/gpu.v
