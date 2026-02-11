@@ -80,12 +80,39 @@ module core #(
         .reset(reset),
         .core_state(core_state),
         .current_pc(current_pc),
+        .mem_read_valid(icache_valid_in),         // Connect to I-Cache valid_in
+        .mem_read_address(icache_addr_in),        // Connect to I-Cache addr_in
+        .mem_read_ready(icache_ready_out),        // Connect to I-Cache ready_out
+        .mem_read_data(icache_data_out),          // Connect to I-Cache data_out
+        .fetcher_state(fetcher_state),
+        .instruction(instruction) 
+    );
+
+    // Instruction Cache Interconnects
+    wire icache_valid_in;
+    wire [PROGRAM_MEM_ADDR_BITS-1:0] icache_addr_in;
+    wire icache_ready_out;
+    wire [PROGRAM_MEM_DATA_BITS-1:0] icache_data_out;
+
+    // Instruction Cache
+    icache #(
+        .ADDR_BITS(PROGRAM_MEM_ADDR_BITS),
+        .DATA_BITS(PROGRAM_MEM_DATA_BITS)
+    ) icache_instance (
+        .clk(clk),
+        .reset(reset),
+        
+        // CPU Side (connected to fetcher)
+        .valid_in(icache_valid_in),
+        .addr_in(icache_addr_in),
+        .ready_out(icache_ready_out),
+        .data_out(icache_data_out),
+
+        // Memory Side (connected to core ports)
         .mem_read_valid(program_mem_read_valid),
         .mem_read_address(program_mem_read_address),
         .mem_read_ready(program_mem_read_ready),
-        .mem_read_data(program_mem_read_data),
-        .fetcher_state(fetcher_state),
-        .instruction(instruction) 
+        .mem_read_data(program_mem_read_data)
     );
 
     // Decoder
