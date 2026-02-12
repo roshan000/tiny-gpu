@@ -137,6 +137,9 @@ module core #(
         .decoded_ret(decoded_ret)
     );
 
+    // Scheduler output
+    wire [THREADS_PER_BLOCK-1:0] active_mask;
+
     // Scheduler
     scheduler #(
         .THREADS_PER_BLOCK(THREADS_PER_BLOCK),
@@ -152,6 +155,7 @@ module core #(
         .lsu_state(lsu_state),
         .current_pc(current_pc),
         .next_pc(next_pc),
+        .active_mask_out(active_mask),
         .done(done)
     );
 
@@ -163,7 +167,7 @@ module core #(
             alu alu_instance (
                 .clk(clk),
                 .reset(reset),
-                .enable(i < thread_count),
+                .enable((i < thread_count) && active_mask[i]),
                 .core_state(core_state),
                 .decoded_alu_arithmetic_mux(decoded_alu_arithmetic_mux),
                 .decoded_alu_output_mux(decoded_alu_output_mux),
@@ -176,7 +180,7 @@ module core #(
             lsu lsu_instance (
                 .clk(clk),
                 .reset(reset),
-                .enable(i < thread_count),
+                .enable((i < thread_count) && active_mask[i]),
                 .core_state(core_state),
                 .decoded_mem_read_enable(decoded_mem_read_enable),
                 .decoded_mem_write_enable(decoded_mem_write_enable),
@@ -202,7 +206,7 @@ module core #(
             ) register_instance (
                 .clk(clk),
                 .reset(reset),
-                .enable(i < thread_count),
+                .enable((i < thread_count) && active_mask[i]),
                 .block_id(block_id),
                 .core_state(core_state),
                 .decoded_reg_write_enable(decoded_reg_write_enable),
@@ -224,7 +228,7 @@ module core #(
             ) pc_instance (
                 .clk(clk),
                 .reset(reset),
-                .enable(i < thread_count),
+                .enable((i < thread_count) && active_mask[i]),
                 .core_state(core_state),
                 .decoded_nzp(decoded_nzp),
                 .decoded_immediate(decoded_immediate),
